@@ -32,9 +32,10 @@ def simulate(filename):
     obstacles = create_obstacles(SIM_TIME, NUMBER_OF_TIMESTEPS)
 
     start = np.array([5, 5])
-    p_desired = np.array([5, 5])
+    p_desired = np.array([7, 3])
 
     robot_state = start
+    
     robot_state_history = np.empty((4, NUMBER_OF_TIMESTEPS))
 
     for i in range(NUMBER_OF_TIMESTEPS):
@@ -47,7 +48,7 @@ def simulate(filename):
             robot_state, obstacle_predictions, xref)
         robot_state = update_state(robot_state, vel, TIMESTEP)
         robot_state_history[:2, i] = robot_state
-
+        print(robot_state)
     plot_robot_and_obstacles(
         robot_state_history, obstacles, ROBOT_RADIUS, NUMBER_OF_TIMESTEPS, SIM_TIME, filename)
 
