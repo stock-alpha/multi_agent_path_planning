@@ -3,7 +3,6 @@ Collision avoidance using Nonlinear Model-Predictive Control
 
 author: Ashwin Bose (atb033@github.com)
 """
-
 from utils.multi_robot_plot import plot_robot_and_obstacles
 from utils.create_obstacles import create_obstacles
 import numpy as np
@@ -41,6 +40,7 @@ def simulate(filename):
     for i in range(NUMBER_OF_TIMESTEPS):
         # predict the obstacles' position in future
         obstacle_predictions = predict_obstacle_positions(obstacles[:, i, :])
+        # print(obstacle_predictions)
         xref = compute_xref(robot_state, p_desired,
                             HORIZON_LENGTH, NMPC_TIMESTEP)
         # compute velocity using nmpc
@@ -48,7 +48,7 @@ def simulate(filename):
             robot_state, obstacle_predictions, xref)
         robot_state = update_state(robot_state, vel, TIMESTEP)
         robot_state_history[:2, i] = robot_state
-        print(robot_state)
+        # print(robot_state)
     plot_robot_and_obstacles(
         robot_state_history, obstacles, ROBOT_RADIUS, NUMBER_OF_TIMESTEPS, SIM_TIME, filename)
 
@@ -66,6 +66,7 @@ def compute_velocity(robot_state, obstacle_predictions, xref):
 
     res = minimize(cost_fn, u0, method='SLSQP', bounds=bounds)
     velocity = res.x[:2]
+    # print(velocity)
     return velocity, res.x
 
 
@@ -85,6 +86,7 @@ def total_cost(u, robot_state, obstacle_predictions, xref):
     c1 = tracking_cost(x_robot, xref)
     c2 = total_collision_cost(x_robot, obstacle_predictions)
     total = c1 + c2
+    print(total)
     return total
 
 
@@ -118,6 +120,7 @@ def predict_obstacle_positions(obstacles):
         obstacle = obstacles[:, i]
         obstacle_position = obstacle[:2]
         obstacle_vel = obstacle[2:]
+        # print(type(obstacle_vel))
         u = np.vstack([np.eye(2)] * HORIZON_LENGTH) @ obstacle_vel
         obstacle_prediction = update_state(obstacle_position, u, NMPC_TIMESTEP)
         obstacle_predictions.append(obstacle_prediction)
@@ -134,5 +137,5 @@ def update_state(x0, u, timestep):
     kron = np.kron(lower_triangular_ones_matrix, np.eye(2))
 
     new_state = np.vstack([np.eye(2)] * int(N)) @ x0 + kron @ u * timestep
-
+    # print(new_state)
     return new_state
